@@ -179,7 +179,7 @@ public extension Date {
         else if (components.day! >= 2) {
             return self.logicalLocalizedStringFromFormat(format: "%%d%@d", value: components.day!)
         }
-        else if (isYesterday && components.hour! >= 24) {
+        else if (isYesterday && components.day! == 1) {
             return self.logicalLocalizedStringFromFormat(format: "%%d%@d", value: 1)
         }
         else if (components.hour! >= 1) {
