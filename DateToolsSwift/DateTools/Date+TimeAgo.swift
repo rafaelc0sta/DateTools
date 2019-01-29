@@ -112,12 +112,16 @@ public extension Date {
         else if (components.day! >= 2) {
             return self.logicalLocalizedStringFromFormat(format: "%%d %@days ago", value: components.day!)
         }
-        else if (isYesterday) {
-            if (numericDates) {
+        else if (components.day! >= 1) {
+            if (isYesterday) {
+                if (numericDates) {
+                    return DateToolsLocalizedStrings("1 day ago");
+                }
+
+                return DateToolsLocalizedStrings("Yesterday");
+            } else {
                 return DateToolsLocalizedStrings("1 day ago");
             }
-            
-            return DateToolsLocalizedStrings("Yesterday");
         }
         else if (components.hour! >= 2) {
             return self.logicalLocalizedStringFromFormat(format: "%%d %@hours ago", value: components.hour!)
@@ -166,6 +170,7 @@ public extension Date {
         let yesterday = latest.subtract(1.days)
         let isYesterday = yesterday.day == earliest.day
         
+        print("Days:", components.day!)
         
         if (components.year! >= 1) {
             return self.logicalLocalizedStringFromFormat(format: "%%d%@y", value: components.year!)
@@ -177,10 +182,12 @@ public extension Date {
             return self.logicalLocalizedStringFromFormat(format: "%%d%@w", value: components.weekOfYear!)
         }
         else if (components.day! >= 1) {
+            
+            if (isYesterday) {
+                return self.logicalLocalizedStringFromFormat(format: "%%d%@d", value: 1)
+            }
+            
             return self.logicalLocalizedStringFromFormat(format: "%%d%@d", value: components.day!)
-        }
-        else if (isYesterday) {
-            return self.logicalLocalizedStringFromFormat(format: "%%d%@d", value: 1)
         }
         else if (components.hour! >= 1) {
             return self.logicalLocalizedStringFromFormat(format: "%%d%@h", value: components.hour!)
@@ -200,9 +207,9 @@ public extension Date {
     
     private func logicalLocalizedStringFromFormat(format: String, value: Int) -> String{
         #if os(Linux)
-            let localeFormat = String.init(format: format, getLocaleFormatUnderscoresWithValue(Double(value)) as! CVarArg)  // this may not work, unclear!!
+        let localeFormat = String.init(format: format, getLocaleFormatUnderscoresWithValue(Double(value)) as! CVarArg)  // this may not work, unclear!!
         #else
-            let localeFormat = String.init(format: format, getLocaleFormatUnderscoresWithValue(Double(value)))
+        let localeFormat = String.init(format: format, getLocaleFormatUnderscoresWithValue(Double(value)))
         #endif
         
         return String.init(format: DateToolsLocalizedStrings(localeFormat), value)
@@ -241,9 +248,9 @@ public extension Date {
         #if os(Linux)
         // NSLocalizedString() is not available yet, see: https://github.com/apple/swift-corelibs-foundation/blob/16f83ddcd311b768e30a93637af161676b0a5f2f/Foundation/NSData.swift
         // However, a seemingly-equivalent method from NSBundle is: https://github.com/apple/swift-corelibs-foundation/blob/master/Foundation/NSBundle.swift
-            return Bundle.main.localizedString(forKey: string, value: "", table: "DateTools")
+        return Bundle.main.localizedString(forKey: string, value: "", table: "DateTools")
         #else
-            return NSLocalizedString(string, tableName: "DateTools", bundle: Bundle.dateToolsBundle(), value: "", comment: "")
+        return NSLocalizedString(string, tableName: "DateTools", bundle: Bundle.dateToolsBundle(), value: "", comment: "")
         #endif
     }
     
@@ -252,7 +259,7 @@ public extension Date {
     
     /**
      *  Return the earlier of two dates, between self and a given date.
-     *  
+     *
      *  - parameter date: The date to compare to self
      *
      *  - returns: The date that is earlier
