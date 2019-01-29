@@ -163,7 +163,7 @@ public extension Date {
         
         
         let components = calendar.dateComponents(unitFlags, from: earliest, to: latest)
-        let yesterday = date.subtract(1.days)
+        let yesterday = latest.subtract(1.days)
         let isYesterday = yesterday.day == earliest.day
         
         
